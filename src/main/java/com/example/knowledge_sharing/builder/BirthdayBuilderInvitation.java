@@ -7,19 +7,22 @@ public class BirthdayBuilderInvitation implements Invitation {
     private final String recipient;
     private final String venue;
     private final String theme;
-    private final String decorationType;
+    private final String dressCode;
 
-    public BirthdayBuilderInvitation(String recipient, String venue, String theme, String decorationType) {
+    public BirthdayBuilderInvitation(String recipient, String venue, String theme, String dressCode) {
         this.recipient = requireText(recipient, "Recipient");
         this.venue = requireText(venue, "Venue");
         this.theme = requireText(theme, "Theme");
-        this.decorationType = requireText(theme, "Ballon");
+        this.dressCode = requireText(dressCode, "dressCode");
     }
 
 
     @Override
     public String message() {
-        return "";
+        return "Birthday invitation for " + recipient
+                + " at " + venue
+                + " | Theme: " + theme
+                + " | Dress Code: " + dressCode;
     }
 
 
@@ -27,7 +30,7 @@ public class BirthdayBuilderInvitation implements Invitation {
         private String recipient;
         private String venue = "Main Hall";
         private String theme = "White";
-        private String decorationType = "Ballon";
+        private String dressCode = "Casual";
 
         public BirthdayBuilderInvitation.Builder recipient(String value) {
             this.recipient = value;
@@ -44,13 +47,14 @@ public class BirthdayBuilderInvitation implements Invitation {
             return this;
         }
 
-        public BirthdayBuilderInvitation.Builder decorationType(String value) {
-            this.decorationType = value;
+        public BirthdayBuilderInvitation.Builder dressCode(String value) {
+            this.dressCode = value;
             return this;
         }
 
+
         public BirthdayBuilderInvitation build() {
-            return new BirthdayBuilderInvitation(recipient, venue, theme, decorationType);
+            return new BirthdayBuilderInvitation(recipient, venue, theme, dressCode);
         }
     }
 

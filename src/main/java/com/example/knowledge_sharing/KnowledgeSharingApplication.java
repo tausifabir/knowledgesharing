@@ -143,14 +143,15 @@ public class KnowledgeSharingApplication {
 
 		Invitation invitation = new WeddingBuilderInvitation.Builder()
 				.recipient("Alice")
-//				.venue("Rose Hall")
+				.venue("Rose Hall")
 				.theme("Gold")
 				.build();
 
 		Invitation weddingBuilderInvitation = new BirthdayBuilderInvitation.Builder()
-				.recipient("Alice")
-				.venue("Rose Hall")
-				.theme("Gold")
+				.recipient("Johnny")
+				.venue("Rose Garden")
+				.theme("Yellow")
+				.dressCode("Pumpkin")
 				.build();
 		log.info(invitation.message());
 		log.info(weddingBuilderInvitation.message());

@@ -11,6 +11,14 @@ import com.example.knowledge_sharing.factory.method.WeddingEvent;
 import com.example.knowledge_sharing.factory.simple.BirthdayInvitation;
 import com.example.knowledge_sharing.factory.simple.Invitation;
 import com.example.knowledge_sharing.factory.simple.InvitationFactory;
+import com.example.knowledge_sharing.exercise.builder.ArcherBuilder;
+import com.example.knowledge_sharing.exercise.builder.base.CharacterBaseBuilder;
+import com.example.knowledge_sharing.exercise.builder.MageBuilder;
+import com.example.knowledge_sharing.exercise.builder.WarriorBuilder;
+import com.example.knowledge_sharing.exercise.factory.ArcherCreator;
+import com.example.knowledge_sharing.exercise.factory.base.CharacterCreator;
+import com.example.knowledge_sharing.exercise.factory.MageCreator;
+import com.example.knowledge_sharing.exercise.factory.WarriorCreator;
 import com.example.knowledge_sharing.prototype.InvitationCard;
 import com.example.knowledge_sharing.singleton.Whiteboard;
 import lombok.extern.log4j.Log4j2;
@@ -155,6 +163,56 @@ public class KnowledgeSharingApplication {
 				.build();
 		log.info(invitation.message());
 		log.info(weddingBuilderInvitation.message());
+
+
+
+
+		log.info("\n");
+		log.info("Problem Builder");
+		log.info("======================");
+
+		CharacterBaseBuilder warrior = new WarriorBuilder()
+				.weapon("Greatsword")
+				.armor("Plate Armor")
+				.specialAbility("Berserk Slash")
+				.level(10)
+				.comboSkills("Shield Bash + Whirlwind")
+				.build();
+
+		CharacterBaseBuilder mage = new MageBuilder()
+				.weapon("Arcane Staff")
+				.armor("Silk Robe")
+				.specialAbility("Fireball")
+				.level(10)
+				.comboSkills("Frost Nova + Meteor Strike")
+				.build();
+
+		CharacterBaseBuilder archer = new ArcherBuilder()
+				.weapon("Longbow")
+				.armor("Leather Armor")
+				.specialAbility("Eagle Eye")
+				.level(10)
+				.comboSkills("Quick Dash + Triple Shot")
+				.build();
+
+		log.info(warrior.toString());
+		log.info(mage.toString());
+		log.info(archer.toString());
+
+
+		log.info("\n");
+		log.info("Problem Abstract Factory");
+		log.info("======================");
+
+		CharacterCreator warriorCreator = new WarriorCreator();
+		CharacterCreator mageCreator = new MageCreator();
+		CharacterCreator archerCreator = new ArcherCreator();
+
+		log.info(warriorCreator.spawnCharacter());
+		log.info(mageCreator.spawnCharacter());
+		log.info(archerCreator.spawnCharacter());
+
+
 
 //		if (!invitation.message().equals(
 //				"Wedding invitation for Alice at Rose Hall | Theme: Gold")) {

@@ -1,0 +1,1 @@
+select * from sharing_notes;

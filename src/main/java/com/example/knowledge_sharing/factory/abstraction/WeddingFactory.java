@@ -1,12 +1,12 @@
 package com.example.knowledge_sharing.factory.abstraction;
 
-import com.example.knowledge_sharing.factory.simple.Invitation;
-import com.example.knowledge_sharing.factory.simple.WeddingInvitation;
+import com.example.knowledge_sharing.common.invitation.Invitation;
+import com.example.knowledge_sharing.factory.simple.WeddingCard;
 
 public class WeddingFactory implements EventFactory {
     @Override
     public Invitation createInvitation() {
-        return new WeddingInvitation();
+        return new WeddingCard();
     }
 
     @Override

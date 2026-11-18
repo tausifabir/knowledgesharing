@@ -48,7 +48,7 @@ public class MageBuilder extends CharacterBaseBuilder {
         return this;
     }
 
-    // ponytail: builder doubles as product; split immutable Archer class when state sharing across threads needed.
+    // ponytail: builder doubles as product; split immutable Mage class when state sharing across threads needed.
     public MageBuilder build() {
         return new MageBuilder(weapon, armor, specialAbility, level, comboSkills);
     }

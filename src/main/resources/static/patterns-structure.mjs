@@ -2,11 +2,13 @@ import { simpleProducts } from './patterns-products.mjs';
 
 // Names and relationships mirror the existing Java examples, not an execution trace.
 export function structure(pattern, input) {
-  const family = input.type === 'birthday' ? 'Birthday' : 'Wedding';
+  const family = ['simple-factory', 'factory-method', 'abstract-factory'].includes(pattern)
+    ? (simpleProducts.find(product => product.type === input.type) || simpleProducts[0]).name
+    : input.type === 'birthday' ? 'Birthday' : 'Wedding';
   const kind = ({ warrior: 'Warrior', mage: 'Mage', archer: 'Archer' })[input.type] || 'Warrior';
   const box = (name, role, members) => ({ name, role, members });
   const link = (from, relation, to, match = '') => ({ from, relation, to, match });
-  const invitation = `${family}Invitation`;
+  const invitation = `${family}Card`;
   const product = `${family}BuilderInvitation`;
   const builder = `${product}.Builder`;
   const event = `${family}Event`;

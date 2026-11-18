@@ -60,6 +60,30 @@ class PatternControllerTests {
     }
 
     @Test
+    void allCardFactoriesSupportSixCards() throws Exception {
+        for (String type : new String[]{"wedding", "birthday", "visiting", "membership", "gift", "playing"}) {
+            String name = Character.toUpperCase(type.charAt(0)) + type.substring(1);
+            mvc.perform(post("/api/patterns/simple-factory").contentType(MediaType.APPLICATION_JSON).content("{\"type\":\"" + type + "\"}"))
+                    .andExpect(status().isOk()).andExpect(jsonPath("$.output.Product").value(name + "Card"))
+                    .andExpect(jsonPath("$.output.Message").value(name + " invitation"));
+            mvc.perform(post("/api/patterns/factory-method").contentType(MediaType.APPLICATION_JSON).content("{\"type\":\"" + type + "\"}"))
+                    .andExpect(status().isOk()).andExpect(jsonPath("$.output.Creator").value(name + "Event"))
+                    .andExpect(jsonPath("$.output.Message").value("Prepared: " + name + " invitation"));
+            mvc.perform(post("/api/patterns/abstract-factory").contentType(MediaType.APPLICATION_JSON).content("{\"type\":\"" + type + "\"}"))
+                    .andExpect(status().isOk()).andExpect(jsonPath("$.output.Factory").value(name + "Factory"))
+                    .andExpect(jsonPath("$.output['Matching set']").value(name + " invitation + " + name + " envelope"));
+            var first = com.example.knowledge_sharing.factory.simple.InvitationFactory.create(type);
+            assertNotSame(first, com.example.knowledge_sharing.factory.simple.InvitationFactory.create(type));
+            for (String pattern : new String[]{"simple-factory", "factory-method", "abstract-factory"}) {
+                mvc.perform(post("/api/patterns/" + pattern).contentType(MediaType.APPLICATION_JSON).content("{\"type\":\"unknown\"}"))
+                        .andExpect(status().isBadRequest());
+            }
+        }
+        mvc.perform(post("/api/patterns/builder").contentType(MediaType.APPLICATION_JSON).content("{\"type\":\"gift\"}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void rejectsInvalidRequests() throws Exception {
         for (String json : new String[]{"{\"recipient\":\" \"}", "{\"recipient\":null}", "{\"recipient\":7}",
                 "{\"type\":\"unknown\"}", "{\"venue\":\"" + "x".repeat(501) + "\"}"}) {

@@ -2,17 +2,19 @@ import { simpleProducts } from './patterns-products.mjs';
 
 // Factory and builder teaching details share one expandable guide layout.
 export function factoryGuide(pattern, input) {
-  const family = input.type === 'birthday' ? 'Birthday' : 'Wedding';
-  const eventRows = ['wedding', 'birthday'].map(type => ({
-    selected: type === (input.type || 'wedding'),
-    cells: [type, `${type === 'birthday' ? 'Birthday' : 'Wedding'}Invitation`]
+  const family = ['simple-factory', 'factory-method', 'abstract-factory'].includes(pattern)
+    ? (simpleProducts.find(product => product.type === input.type) || simpleProducts[0]).name
+    : input.type === 'birthday' ? 'Birthday' : 'Wedding';
+  const eventRows = simpleProducts.map(product => ({
+    selected: product.name === family,
+    cells: [product.type, product.product]
   }));
   switch (pattern) {
     case 'simple-factory': {
       const selected = simpleProducts.find(product => product.type === input.type) || simpleProducts[0];
       return {
         title: 'Simple Factory · six choices, one selection point',
-        decision: 'Caller passes a type string. InvitationFactory.create(type) centrally selects and constructs one matching card product. Existing Java products retain Invitation names.',
+        decision: 'Caller passes a type string. InvitationFactory.create(type) centrally selects and constructs one matching card product. Concrete products use Card names and implement the existing Invitation contract.',
         columns: ['Your request', 'Object created'],
         rows: simpleProducts.map(product => ({ selected: product === selected, cells: [product.type, product.product] })),
         flow: [`Client calls InvitationFactory.create("${selected.type}").`, `The matching branch constructs a new ${selected.product}.`, 'The method returns it through the Invitation interface.', `Client calls message() and receives "${selected.name} invitation".`],
@@ -24,15 +26,15 @@ export function factoryGuide(pattern, input) {
           ['Factory Method difference', 'Creator subclasses override a creation method. Adding more product types alone does not require switching to Factory Method.'],
           ['Abstract Factory difference', 'Creates families of related products, such as a wedding invitation and envelope. More individual card choices alone do not make an Abstract Factory.'],
           ['Use when', 'One central creation helper selects a product from an explicit input. Simple Factory is an idiom, not an original GoF pattern.']
-        ], source: 'factory/simple/InvitationFactory.java · factory/simple/Invitation.java'
+        ], source: 'factory/simple/InvitationFactory.java · common/invitation/Invitation.java'
       };
     }
     case 'factory-method': return {
       title: 'Factory Method · subclass supplies the product',
       decision: 'Caller selects an event subclass. The inherited preparation workflow asks that subclass to create its invitation.',
       columns: ['Selected event class', 'Overridden method', 'Created class'],
-      rows: eventRows.map(row => ({ selected: row.selected, cells: [`${row.cells[1].replace('Invitation', '')}Event`, 'createInvitation()', row.cells[1]] })),
-      flow: [`Client constructs ${family}Event as InvitationEvent.InvitingEvent.`, 'Client calls inherited prepareInvitation().', `prepareInvitation() calls the protected createInvitation() override in ${family}Event.`, `The override returns a new ${family}Invitation.`, `The inherited method calls message() and returns "Prepared: ${family} invitation".`],
+      rows: eventRows.map(row => ({ selected: row.selected, cells: [`${row.cells[1].replace('Card', '')}Event`, 'createInvitation()', row.cells[1]] })),
+      flow: [`Client constructs ${family}Event as InvitationEvent.InvitingEvent.`, 'Client calls inherited prepareInvitation().', `prepareInvitation() calls the protected createInvitation() override in ${family}Event.`, `The override returns a new ${family}Card.`, `The inherited method calls message() and returns "Prepared: ${family} invitation".`],
       facts: [
         ['Inheritance', `${family}Event extends InvitationEvent.InvitingEvent. The base class owns prepareInvitation(); the subclass owns the creation override.`],
         ['Visibility', 'createInvitation() is protected, so outside callers use prepareInvitation(), not the factory method directly.'],
@@ -44,8 +46,8 @@ export function factoryGuide(pattern, input) {
       title: 'Abstract Factory · related products from one family',
       decision: 'Caller chooses one EventFactory implementation. That factory supplies both product types with a consistent event theme.',
       columns: ['Factory class', 'Invitation product', 'Envelope product'],
-      rows: ['Wedding', 'Birthday'].map(name => ({ selected: name === family, cells: [`${name}Factory`, `${name}Invitation`, `${name}Envelope`] })),
-      flow: [`Client chooses ${family}Factory through EventFactory.`, `createInvitation() returns a new ${family}Invitation implementing Invitation.`, `createEnvelope() returns a new ${family}Envelope implementing Envelope.`, 'prepareMatchingSet(factory) calls both creation methods, then combines message() and description().', `Returned string: "${family} invitation + ${family} envelope".`],
+      rows: simpleProducts.map(({ name, product }) => ({ selected: name === family, cells: [`${name}Factory`, product, `${name}Envelope`] })),
+      flow: [`Client chooses ${family}Factory through EventFactory.`, `createInvitation() returns a new ${family}Card implementing Invitation.`, `createEnvelope() returns a new ${family}Envelope implementing Envelope.`, 'prepareMatchingSet(factory) calls both creation methods, then combines message() and description().', `Returned string: "${family} invitation + ${family} envelope".`],
       facts: [
         ['Two contracts', 'Invitation defines message(); Envelope defines description(). EventFactory defines how to create both.'],
         ['Family consistency', 'Use one factory for both products to keep the event theme consistent. Java does not prevent manually mixing products from different factories.'],
@@ -125,22 +127,22 @@ export function factoryGuide(pattern, input) {
     }
     case 'prototype': return {
       title: 'Prototype · Shallow copy vs Deep copy',
-      decision: 'Choose how internal references are duplicated. Shallow copy copies object fields directly (sharing references). Deep copy recursively duplicates nested mutable objects.',
+      decision: 'This example runs both copy methods. Both create a new card and share the immutable guestName String. Shallow copy shares the mutable message buffer; deep copy explicitly duplicates that buffer when present.',
       columns: ['Copy method', 'Outer object', 'Nested StringBuilder', 'Mutating copy affects original?'],
       rows: [
-        { selected: true, cells: ['shallowCopy()', 'New InvitationCard instance', 'Shared reference (same pointer)', 'YES (both point to same buffer)'] },
-        { selected: false, cells: ['deepCopy()', 'New InvitationCard instance', 'New StringBuilder(message)', 'NO (completely independent buffer)'] }
+        { cells: ['shallowCopy()', 'New InvitationCard instance', 'Shared reference (same buffer)', 'YES (both reference the same buffer)'] },
+        { cells: ['deepCopy()', 'New InvitationCard instance', 'New StringBuilder(message), or null if absent', 'NO (independent buffer when present)'] }
       ],
       flow: [
         `Client creates template = new InvitationCard("Guest", new StringBuilder("${input.message ?? 'Wedding at 6 PM.'}")).`,
-        'shallowCopy() calls: new InvitationCard(guestName, message) -> outer card is new, message pointer is identical.',
-        'deepCopy() calls: new InvitationCard(guestName, new StringBuilder(message)) -> outer card is new, message is freshly cloned.',
+        'shallowCopy() creates a new InvitationCard(guestName, message). The outer card is new; the message reference stays shared.',
+        'deepCopy() creates a new card with new StringBuilder(message) when a message exists. A null message stays null.',
         `shallow.getMessage().append("${input.addition ?? ' Dinner included.'}") mutates the shared StringBuilder.`,
         'Result: template sees mutation because of shared reference. Deep copy remains pristine with original text.'
       ],
       facts: [
         ['Shallow copy mechanism', 'Duplicates only primitive values and object references. If a field points to a mutable object (like StringBuilder, List, Date), both instances share that exact object.'],
-        ['Deep copy mechanism', 'Duplicates outer object AND constructs independent copies of all reachable mutable objects. Changes to copy cannot leak into original.'],
+        ['Deep copy mechanism', 'This class explicitly duplicates its only mutable field, message, when non-null. The immutable guestName String stays shared. Future mutable fields need their own copy logic; this method is not a generic recursive copier.'],
         ['String vs StringBuilder', 'String is immutable in Java, so shallow copying String is always safe. StringBuilder is mutable, so sharing it introduces side effects across instances.'],
         ['Use Shallow copy when', 'Objects are immutable or shared state is intentional (e.g. read-only configurations, heavy flyweight references).'],
         ['Use Deep copy when', 'Copied instances must be modified independently without corrupting template or other clones.']
@@ -164,9 +166,9 @@ export function renderFactoryGuide(pattern, input) {
   document.querySelector('#factory-guide-title').textContent = guide.title;
   document.querySelector('#factory-decision').textContent = guide.decision;
   const selected = guide.rows.find(row => row.selected);
-  document.querySelector('#factory-selected-branch').textContent = `Selected branch: ${selected.cells[0]}`;
+  document.querySelector('#factory-selected-branch').textContent = selected ? `Selected branch: ${selected.cells[0]}` : 'Both copy methods demonstrated';
   const table = document.querySelector('#factory-families');
-  const caption = element('caption', 'Available branches · selected branch marked explicitly');
+  const caption = element('caption', selected ? 'Available branches · selected branch marked explicitly' : 'Copy methods · both demonstrated');
   const head = document.createElement('thead');
   const header = document.createElement('tr');
   for (const label of ['Selection', ...guide.columns]) {
@@ -179,7 +181,7 @@ export function renderFactoryGuide(pattern, input) {
   for (const row of guide.rows) {
     const tr = document.createElement('tr');
     tr.className = row.selected ? 'factory-selected' : '';
-    tr.append(element('td', row.selected ? 'Selected' : 'Alternative'));
+    tr.append(element('td', selected ? (row.selected ? 'Selected' : 'Alternative') : 'Demonstrated'));
     row.cells.forEach(text => tr.append(element('td', text)));
     body.append(tr);
   }

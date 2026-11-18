@@ -1,6 +1,6 @@
 package com.example.knowledge_sharing.builder;
 
-import com.example.knowledge_sharing.factory.simple.Invitation;
+import com.example.knowledge_sharing.common.invitation.Invitation;
 
 public class WeddingBuilderInvitation implements Invitation {
     private final String recipient;

@@ -4,7 +4,7 @@ public class Whiteboard {
 
     private static final Whiteboard INSTANCE = new Whiteboard();
 
-    private String text = "";
+    private volatile String text = ""; // Publish writes to every thread using the shared instance.
 
     private Whiteboard() {}
 

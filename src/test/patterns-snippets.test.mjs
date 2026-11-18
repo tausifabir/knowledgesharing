@@ -23,6 +23,9 @@ for (const type of ['wedding', 'birthday']) {
 }
 for (const type of ['wedding', 'birthday', 'visiting', 'membership', 'gift', 'playing']) {
   assert.ok(snippet('simple-factory', { ...input, type }).includes(`create("${type}")`));
+  const name = type[0].toUpperCase() + type.slice(1);
+  assert.ok(snippet('factory-method', { ...input, type }).includes(`new ${name}Event()`));
+  assert.ok(snippet('abstract-factory', { ...input, type }).includes(`new ${name}Factory()`));
 }
 for (const type of ['warrior', 'mage', 'archer']) {
   const name = type[0].toUpperCase() + type.slice(1);

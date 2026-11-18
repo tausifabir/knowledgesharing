@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { factoryGuide, renderFactoryGuide } from '../main/resources/static/patterns-factory.mjs';
 
 for (const pattern of ['simple-factory', 'factory-method', 'abstract-factory', 'character-factory', 'builder', 'character-builder']) {
-  const types = pattern === 'simple-factory' ? ['wedding', 'birthday', 'visiting', 'membership', 'gift', 'playing'] : pattern.startsWith('character-') ? ['warrior', 'mage', 'archer'] : ['wedding', 'birthday'];
+  const types = ['simple-factory', 'factory-method', 'abstract-factory'].includes(pattern) ? ['wedding', 'birthday', 'visiting', 'membership', 'gift', 'playing'] : pattern.startsWith('character-') ? ['warrior', 'mage', 'archer'] : ['wedding', 'birthday'];
   for (const [index, type] of types.entries()) {
     const guide = factoryGuide(pattern, { type });
     assert.equal(guide.rows.length, types.length);
@@ -23,7 +23,7 @@ assert.match(factoryGuide('simple-factory', { type: 'birthday' }).flow.at(-1), /
 for (const type of ['wedding', 'birthday', 'visiting', 'membership', 'gift', 'playing']) {
   const guide = factoryGuide('simple-factory', { type });
   const name = type[0].toUpperCase() + type.slice(1);
-  assert.equal(guide.rows.find(row => row.selected).cells[1], `${name}Invitation`);
+  assert.equal(guide.rows.find(row => row.selected).cells[1], `${name}Card`);
   assert.ok(guide.flow.at(-1).includes(`${name} invitation`));
 }
 assert.match(factoryGuide('simple-factory', {}).facts.find(([label]) => label === 'Add a new card type')[1], /20 types/);
@@ -89,8 +89,13 @@ try {
   assert.equal(elements['#factory-selected-branch'].textContent, 'Selected branch: MageBuilder');
   renderFactoryGuide('prototype', { message: 'Original', addition: ' Extra' });
   assert.equal(elements['#factory-guide'].hidden, false);
-  assert.equal(elements['#factory-selected-branch'].textContent, 'Selected branch: shallowCopy()');
-  assert.equal(elements['#factory-families'].children[2].children.length, 2);
+  assert.equal(elements['#factory-selected-branch'].textContent, 'Both copy methods demonstrated');
+  const copyRows = elements['#factory-families'].children[2].children;
+  assert.equal(copyRows.length, 2);
+  assert.ok(copyRows.every(row => row.children[0].textContent === 'Demonstrated'));
+  const prototype = factoryGuide('prototype', {});
+  assert.match(prototype.facts.find(([label]) => label === 'Deep copy mechanism')[1], /not a generic recursive copier/);
+  assert.doesNotMatch(JSON.stringify(prototype), /pointer/);
   renderFactoryGuide('singleton', {});
   assert.equal(elements['#factory-guide'].hidden, true);
   renderFactoryGuide('abstract-factory', { type: 'wedding' });

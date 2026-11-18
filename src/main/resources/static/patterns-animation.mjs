@@ -1,10 +1,13 @@
 import { snippet } from './patterns-snippets.mjs';
 import { structure, renderStructure } from './patterns-structure.mjs';
 import { simpleProducts } from './patterns-products.mjs';
+import { renderFlow } from './patterns-flow.mjs';
 
 // Teaching snapshots, not a Java debugger. IDs describe references within this preview only.
 export function storyboard(pattern, input) {
-  const family = input.type === 'birthday' ? 'Birthday' : 'Wedding';
+  const family = ['simple-factory', 'factory-method', 'abstract-factory'].includes(pattern)
+    ? (simpleProducts.find(product => product.type === input.type) || simpleProducts[0]).name
+    : input.type === 'birthday' ? 'Birthday' : 'Wedding';
   const kind = ({ mage: 'Mage', archer: 'Archer', warrior: 'Warrior' })[input.type] || 'Warrior';
   const node = (label, detail) => ({ label, detail: String(detail ?? '') });
   const step = (caption, match, nodes) => ({ caption, match, nodes });
@@ -54,7 +57,7 @@ export function storyboard(pattern, input) {
   if (pattern === 'factory-method') return [
     step('Choose an event organizer. Each organizer knows which invitation to make.', 'InvitingEvent event', [node('Event organizer', `${family} organizer`)]),
     step('Every organizer follows the same preparation steps, but each makes its own kind of invitation.', 'event.prepareInvitation', [node('Shared preparation steps', 'Ask the chosen organizer to make an invitation'), node('Chosen organizer', `Makes a ${family.toLowerCase()} invitation`)]),
-    step('The organizer returns the prepared invitation.', 'event.prepareInvitation', [node('Finished invitation', `${family} invitation`), node('Message you receive', `Prepared: ${family} invitation`)])
+    step('The organizer returns prepared message text, not the invitation object.', 'event.prepareInvitation', [node('Finished invitation', `${family} invitation`), node('Message you receive', `Prepared: ${family} invitation`)])
   ];
   if (pattern === 'abstract-factory') return [
     step('Choose one event stationery maker. It can make a whole matching set.', 'EventFactory factory', [node('Stationery maker', `${family} collection`)]),
@@ -88,13 +91,33 @@ export function createAnimation() {
   let cards = [];
   let codeRows = [];
   let highlightStructure = () => {};
-  const view = document.querySelector('#animation-view');
-  view?.addEventListener('change', () => {
+  let highlightFlow = () => {};
+  const tabs = [...(document.querySelectorAll?.('[role="tab"][data-view]') || [])];
+  const pace = document.querySelector('#animation-pace');
+  function selectTab(tab) {
     pause();
-    const technical = view.value === 'structure';
-    scene.hidden = technical;
-    document.querySelector('#structure-view').hidden = !technical;
+    tabs.forEach(button => {
+      const active = button === tab;
+      button.setAttribute('aria-selected', String(active));
+      button.tabIndex = active ? 0 : -1;
+      document.querySelector(`#${button.getAttribute('aria-controls')}`).hidden = !active;
+    });
+  }
+  tabs.forEach((tab, position) => {
+    tab.addEventListener('click', () => selectTab(tab));
+    tab.addEventListener('keydown', event => {
+      let target;
+      if (event.key === 'ArrowRight') target = tabs[(position + 1) % tabs.length];
+      if (event.key === 'ArrowLeft') target = tabs[(position + tabs.length - 1) % tabs.length];
+      if (event.key === 'Home') target = tabs[0];
+      if (event.key === 'End') target = tabs.at(-1);
+      if (!target) return;
+      event.preventDefault();
+      selectTab(target);
+      target.focus();
+    });
   });
+  pace?.addEventListener('change', pause);
   const reducedMotion = () => globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   function crossfade(content, update) {
     content.getAnimations?.().forEach(animation => animation.cancel());
@@ -105,7 +128,7 @@ export function createAnimation() {
     old.setAttribute('aria-hidden', 'true');
     old.classList.add('object-outgoing');
     content.parentNode.append(old);
-    const timing = { duration: 1200, easing: 'cubic-bezier(.22, 1, .36, 1)' };
+    const timing = { duration: 1600, easing: 'ease-in-out' };
     const fade = old.animate([{ opacity: 1 }, { opacity: 0 }], timing);
     fade.onfinish = fade.oncancel = () => old.remove();
     content.animate([{ opacity: 0 }, { opacity: 1 }], timing);
@@ -121,6 +144,7 @@ export function createAnimation() {
     counter.textContent = `Step ${index + 1} of ${steps.length}`;
     caption.textContent = current.caption;
     highlightStructure(current.match);
+    highlightFlow(index);
     cards.forEach(({ item, content, title, value }, position) => {
       const data = current.nodes[position];
       const changed = data && (title.textContent !== data.label || value.textContent !== data.detail);
@@ -151,7 +175,8 @@ export function createAnimation() {
     play.textContent = 'Pause';
     play.setAttribute('aria-pressed', 'true');
     // Reduced motion still permits explicit playback, but without moving transitions.
-    timer = setInterval(() => { index++; render(); }, 6500);
+    const delay = Number(pace?.value || 9000);
+    timer = setInterval(() => { index++; render(); }, [6500, 9000, 12000].includes(delay) ? delay : 9000);
   });
   next.addEventListener('click', () => { pause(); if (index < steps.length - 1) { index++; render(); } });
   document.querySelector('#animation-previous')?.addEventListener('click', () => { pause(); if (index > 0) { index--; render(); } });
@@ -161,6 +186,13 @@ export function createAnimation() {
     pause();
     index = 0;
     steps = storyboard(pattern, input);
+    const captionSizing = document.querySelector('#caption-sizing');
+    if (captionSizing) captionSizing.replaceChildren(...steps.map(step => {
+      const sample = document.createElement('p');
+      sample.textContent = step.caption;
+      return sample;
+    }));
+    highlightFlow = renderFlow(pattern, input, steps);
     if (document.querySelector('#structure-boxes')) highlightStructure = renderStructure(structure(pattern, input));
     lines = snippet(pattern, input).split('\n');
     cards = Array.from({ length: Math.max(...steps.map(step => step.nodes.length)) }, (_, position) => {

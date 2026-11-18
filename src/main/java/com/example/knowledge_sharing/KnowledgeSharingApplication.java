@@ -8,8 +8,8 @@ import com.example.knowledge_sharing.factory.abstraction.WeddingFactory;
 import com.example.knowledge_sharing.factory.method.BirthdayEvent;
 import com.example.knowledge_sharing.factory.method.InvitationEvent;
 import com.example.knowledge_sharing.factory.method.WeddingEvent;
-import com.example.knowledge_sharing.factory.simple.BirthdayInvitation;
-import com.example.knowledge_sharing.factory.simple.Invitation;
+import com.example.knowledge_sharing.factory.simple.BirthdayCard;
+import com.example.knowledge_sharing.common.invitation.Invitation;
 import com.example.knowledge_sharing.factory.simple.InvitationFactory;
 import com.example.knowledge_sharing.exercise.builder.ArcherBuilder;
 import com.example.knowledge_sharing.exercise.builder.base.CharacterBaseBuilder;
@@ -50,7 +50,7 @@ public class KnowledgeSharingApplication {
 
 		bob.write("Hello from BoB");
 
-		log.info(alice.read());    // Hello from Alice
+		log.info(alice.read());    // Hello from BoB
 		log.info(Objects.equals(alice.read(), bob.read())); // true
 
 		if (!"Hello from BoB".equals(bob.read())) {
@@ -129,9 +129,7 @@ public class KnowledgeSharingApplication {
 		log.info("Abstract Factory: {}" , prepareMatchingSet(factory));
 
 		// Runnable checks: enable with -ea.
-//		Invitation invitation;
-//        assert invitation instanceof WeddingInvitation;
-		assert InvitationFactory.create("birthday") instanceof BirthdayInvitation;
+		assert InvitationFactory.create("birthday") instanceof BirthdayCard;
 
 		assert event.prepareInvitation().equals("Prepared: Birthday invitation");
 		assert new WeddingEvent().prepareInvitation()

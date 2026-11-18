@@ -6,7 +6,7 @@ const input = { type: 'birthday', message: 'Original', addition: ' + dinner', re
   theme: 'Gold', dressCode: 'Formal', weapon: 'Staff', armor: 'Robe', specialAbility: 'Fireball', level: 10, comboSkills: 'Meteor' };
 const patterns = ['singleton', 'prototype', 'simple-factory', 'factory-method', 'abstract-factory', 'builder', 'character-factory', 'character-builder', 'factory-vs-builder'];
 for (const pattern of patterns) {
-  for (const type of pattern.startsWith('character') ? ['warrior', 'mage', 'archer'] : ['wedding', 'birthday']) {
+  for (const type of ['simple-factory', 'factory-method', 'abstract-factory'].includes(pattern) ? ['wedding', 'birthday', 'visiting', 'membership', 'gift', 'playing'] : pattern.startsWith('character') ? ['warrior', 'mage', 'archer'] : ['wedding', 'birthday']) {
     const values = { ...input, type };
     const code = snippet(pattern, values);
     const steps = storyboard(pattern, values);
@@ -104,7 +104,7 @@ try {
   });
   assert.equal(get('animation-progress').value, 2);
   const content = firstCard.children[0];
-  assert.equal(content.animations.at(-1).timing.duration, 1200);
+  assert.equal(content.animations.at(-1).timing.duration, 1600);
   assert.deepEqual(content.animations.at(-1).frames, [{ opacity: 0 }, { opacity: 1 }]);
   const outgoing = firstCard.querySelector('.object-outgoing');
   assert.equal(outgoing.attributes['aria-hidden'], 'true');
@@ -116,7 +116,7 @@ try {
   get('animation-next').click();
   get('animation-play').click();
   assert.equal(get('animation-play').textContent, 'Pause');
-  assert.equal(interval, 6500);
+  assert.equal(interval, 9000);
   tick(); tick();
   assert.equal(get('animation-step').textContent, 'Step 4 of 4');
   assert.equal(get('animation-next').disabled, true);

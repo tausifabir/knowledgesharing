@@ -4,7 +4,7 @@ import { storyboard } from '../main/resources/static/patterns-animation.mjs';
 const patterns = ['singleton', 'prototype', 'simple-factory', 'factory-method', 'abstract-factory', 'builder', 'character-factory', 'character-builder', 'factory-vs-builder'];
 const input = { type: 'birthday', message: 'Hello', addition: '!', recipient: 'Alice', venue: 'Hall', theme: 'Gold', dressCode: 'Formal', weapon: 'Staff', armor: 'Robe', specialAbility: 'Fireball', level: 10, comboSkills: 'Meteor' };
 for (const pattern of patterns) {
-  for (const type of pattern.startsWith('character') ? ['warrior', 'mage', 'archer'] : ['wedding', 'birthday']) {
+  for (const type of ['simple-factory', 'factory-method', 'abstract-factory'].includes(pattern) ? ['wedding', 'birthday', 'visiting', 'membership', 'gift', 'playing'] : pattern.startsWith('character') ? ['warrior', 'mage', 'archer'] : ['wedding', 'birthday']) {
     const values = { ...input, type };
     const model = structure(pattern, values);
     assert.ok(model.boxes.length >= 2);
@@ -17,12 +17,12 @@ for (const pattern of patterns) {
     }
   }
 }
-assert.ok(structure('simple-factory', input).links.some(link => link.from === 'BirthdayInvitation' && link.relation === 'implements' && link.to === 'Invitation'));
+assert.ok(structure('simple-factory', input).links.some(link => link.from === 'BirthdayCard' && link.relation === 'implements' && link.to === 'Invitation'));
 for (const type of ['wedding', 'birthday', 'visiting', 'membership', 'gift', 'playing']) {
   const model = structure('simple-factory', { ...input, type });
   assert.equal(model.boxes.length, 8);
   assert.equal(model.boxes.filter(box => box.role === 'Selected concrete class').length, 1);
-  assert.equal(model.boxes[2].name, `${type[0].toUpperCase() + type.slice(1)}Invitation`);
+  assert.equal(model.boxes[2].name, `${type[0].toUpperCase() + type.slice(1)}Card`);
   assert.equal(model.links.filter(link => link.relation === 'implements').length, 6);
 }
 assert.ok(structure('factory-method', input).links.some(link => link.from === 'BirthdayEvent' && link.relation === 'extends' && link.to === 'InvitationEvent.InvitingEvent'));
@@ -52,6 +52,6 @@ try {
   highlight('invitation.message()');
   assert.equal(links.children[1].attributes['aria-current'], undefined);
   assert.equal(links.children[2].attributes['aria-current'], 'step');
-  assert.equal(boxes.children[2].children[1].textContent, 'BirthdayInvitation');
+  assert.equal(boxes.children[2].children[1].textContent, 'BirthdayCard');
 } finally { globalThis.document = original; }
 console.log('All code structure models and synchronized relationship highlights passed.');

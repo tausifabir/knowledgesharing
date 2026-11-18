@@ -22,16 +22,25 @@
 <div class="panel-head"><h2 id="animation-title">Watch the pattern</h2><small>TEACHING PREVIEW</small></div>
 <div class="animation-body">
 <p class="animation-note">Object boxes explain each step. Matching Java lines are highlighted below. This illustration does not execute Java; use Run example for real server output.</p>
-<div class="view-choice"><label for="animation-view">Learning view</label><select id="animation-view"><option value="simple">Simple explanation</option><option value="structure">Code structure</option></select></div>
-<ul id="object-scene" class="object-scene" aria-label="Objects at this step"></ul>
-<div id="structure-view" hidden>
+<div class="learning-tabs" role="tablist" aria-label="Learning view">
+<button type="button" id="simple-tab" role="tab" aria-selected="true" aria-controls="simple-view" tabindex="0" data-view="simple">Simple explanation</button>
+<button type="button" id="structure-tab" role="tab" aria-selected="false" aria-controls="structure-view" tabindex="-1" data-view="structure">Code structure</button>
+<button type="button" id="flow-tab" role="tab" aria-selected="false" aria-controls="flow-view" tabindex="-1" data-view="flow">Working / data flow</button>
+</div>
+<div id="simple-view" role="tabpanel" aria-labelledby="simple-tab" tabindex="0"><ul id="object-scene" class="object-scene" aria-label="Objects at this step"></ul></div>
+<div id="structure-view" role="tabpanel" aria-labelledby="structure-tab" tabindex="0" hidden>
 <p class="animation-note">Boxes show Java types and their members. Labeled connections describe relationships. Highlighted connections match the current walkthrough step and Java line.</p>
 <ul id="structure-boxes" class="structure-boxes" aria-label="Classes and interfaces"></ul>
 <h3 class="structure-heading">Relationships and calls</h3>
 <ul id="structure-links" class="structure-links" aria-label="Code relationships"></ul>
 </div>
-<p id="animation-caption" role="status" aria-live="polite" aria-atomic="true"></p>
+<div id="flow-view" role="tabpanel" aria-labelledby="flow-tab" tabindex="0" hidden>
+<p class="animation-note">Read top to bottom: who acts, what moves, and what returns. Current step follows playback; values reflect your inputs. Teaching model, not a live Java trace.</p>
+<ol id="data-flow" class="data-flow" aria-label="Working sequence and transferred data"></ol>
+</div>
+<div class="caption-slot"><p id="animation-caption" role="status" aria-live="polite" aria-atomic="true"></p><div id="caption-sizing" aria-hidden="true"></div></div>
 <div class="animation-controls"><button type="button" id="animation-play" aria-pressed="false">Play</button><button type="button" id="animation-previous">Previous</button><button type="button" id="animation-next">Next step</button><button type="button" id="animation-restart">Restart</button><small id="animation-step"></small></div>
+<div class="playback-pace"><label for="animation-pace">Time per step</label><select id="animation-pace"><option value="6500">6.5 seconds</option><option value="9000" selected>9 seconds</option><option value="12000">12 seconds</option></select><span>Manual stepping stays available.</span></div>
 <progress id="animation-progress" aria-label="Walkthrough progress" value="1" max="4"></progress>
 </div></section>
 <details id="factory-guide" class="panel factory-guide" hidden>

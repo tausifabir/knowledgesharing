@@ -1,6 +1,6 @@
 package com.example.knowledge_sharing.factory.abstraction;
 
-import com.example.knowledge_sharing.factory.simple.Invitation;
+import com.example.knowledge_sharing.common.invitation.Invitation;
 
 public interface EventFactory {
     Invitation createInvitation();

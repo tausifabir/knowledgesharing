@@ -9,11 +9,8 @@ import com.example.knowledge_sharing.exercise.factory.ArcherCreator;
 import com.example.knowledge_sharing.exercise.factory.MageCreator;
 import com.example.knowledge_sharing.exercise.factory.WarriorCreator;
 import com.example.knowledge_sharing.exercise.factory.base.CharacterCreator;
-import com.example.knowledge_sharing.factory.abstraction.BirthdayFactory;
-import com.example.knowledge_sharing.factory.abstraction.EventFactory;
-import com.example.knowledge_sharing.factory.abstraction.WeddingFactory;
-import com.example.knowledge_sharing.factory.method.BirthdayEvent;
-import com.example.knowledge_sharing.factory.method.WeddingEvent;
+import com.example.knowledge_sharing.factory.abstraction.*;
+import com.example.knowledge_sharing.factory.method.*;
 import com.example.knowledge_sharing.factory.simple.InvitationFactory;
 import com.example.knowledge_sharing.prototype.InvitationCard;
 import com.example.knowledge_sharing.singleton.Whiteboard;
@@ -65,7 +62,9 @@ public class PatternController {
     }
 
     private Result invitation(String pattern, Map<String, Object> input) {
-        String type = choice(input, "wedding", "wedding", "birthday");
+        String type = pattern.equals("builder")
+                ? choice(input, "wedding", "wedding", "birthday")
+                : choice(input, "wedding", "wedding", "birthday", "visiting", "membership", "gift", "playing");
         boolean wedding = type.equals("wedding");
         return switch (pattern) {
             case "simple-factory" -> {
@@ -74,12 +73,26 @@ public class PatternController {
                         "Product", product.getClass().getSimpleName(), "Message", product.message());
             }
             case "factory-method" -> {
-                var event = wedding ? new WeddingEvent() : new BirthdayEvent();
+                InvitationEvent.InvitingEvent event = switch (type) {
+                    case "birthday" -> new BirthdayEvent();
+                    case "visiting" -> new VisitingEvent();
+                    case "membership" -> new MembershipEvent();
+                    case "gift" -> new GiftEvent();
+                    case "playing" -> new PlayingEvent();
+                    default -> new WeddingEvent();
+                };
                 yield result("The event subclass overrides createInvitation(); inherited prepareInvitation() uses that product.",
                         "Creator", event.getClass().getSimpleName(), "Message", event.prepareInvitation());
             }
             case "abstract-factory" -> {
-                EventFactory factory = wedding ? new WeddingFactory() : new BirthdayFactory();
+                EventFactory factory = switch (type) {
+                    case "birthday" -> new BirthdayFactory();
+                    case "visiting" -> new VisitingFactory();
+                    case "membership" -> new MembershipFactory();
+                    case "gift" -> new GiftFactory();
+                    case "playing" -> new PlayingFactory();
+                    default -> new WeddingFactory();
+                };
                 yield result("One factory creates a matching invitation and envelope family.",
                         "Factory", factory.getClass().getSimpleName(), "Invitation", factory.createInvitation().message(),
                         "Envelope", factory.createEnvelope().description(), "Matching set", EventFactory.prepareMatchingSet(factory));

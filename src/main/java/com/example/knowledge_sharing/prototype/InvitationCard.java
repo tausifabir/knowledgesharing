@@ -23,7 +23,7 @@ public class InvitationCard {
     public InvitationCard deepCopy() {
         return new InvitationCard(
                 guestName,
-                new StringBuilder(message)
+                message == null ? null : new StringBuilder(message)
         );
     }
 }

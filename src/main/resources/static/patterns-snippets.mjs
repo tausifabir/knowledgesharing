@@ -1,8 +1,12 @@
+import { simpleProducts } from './patterns-products.mjs';
+
 // JSON string escapes are valid in Java literals; escape DEL too for readable pasted code.
 const literal = value => JSON.stringify(String(value ?? '')).replace(/\u007f/g, '\\u007f');
 
 export function snippet(pattern, input) {
-  const family = input.type === 'birthday' ? 'Birthday' : 'Wedding';
+  const family = ['simple-factory', 'factory-method', 'abstract-factory'].includes(pattern)
+    ? (simpleProducts.find(product => product.type === input.type) || simpleProducts[0]).name
+    : input.type === 'birthday' ? 'Birthday' : 'Wedding';
   const character = ({ warrior: 'Warrior', mage: 'Mage', archer: 'Archer' })[input.type] || 'Warrior';
   const builder = `new ${family}BuilderInvitation.Builder()\n    .recipient(${literal(input.recipient)})\n    .venue(${literal(input.venue)})\n    .theme(${literal(input.theme)})${input.type === 'birthday' ? `\n    .dressCode(${literal(input.dressCode)})` : ''}\n    .build();`;
   switch (pattern) {

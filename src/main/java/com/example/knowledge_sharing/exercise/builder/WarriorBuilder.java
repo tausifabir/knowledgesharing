@@ -48,7 +48,7 @@ public class WarriorBuilder extends CharacterBaseBuilder {
         return this;
     }
 
-    // ponytail: builder doubles as product; split immutable Archer class when state sharing across threads needed.
+    // ponytail: builder doubles as product; split immutable Warrior class when state sharing across threads needed.
     public WarriorBuilder build() {
         return new WarriorBuilder(weapon, armor, specialAbility, level, comboSkills);
     }
